@@ -108,6 +108,36 @@
         .nav-buttons .inactive:hover {
             background-color: #cbd5e0;
         }
+        .delete-all-button-container {
+            text-align: center;
+            margin-top: 2rem;
+        }
+        .delete-all-button {
+            padding: 10px 20px;
+            background-color: #ef4444; /* Merah */
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .delete-all-button:hover {
+            background-color: #dc2626; /* Merah lebih gelap */
+        }
+        .delete-single-button {
+            background-color: #f59e0b; /* Oranye */
+            color: white;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .delete-single-button:hover {
+            background-color: #ea580c; /* Oranye lebih gelap */
+        }
     </style>
 </head>
 <body class="bg-gray-50">
@@ -138,11 +168,15 @@
                         <th class="p-3 text-right">Kembalian</th>
                         <th class="p-3 text-right">Utang</th>
                         <th class="p-3 text-left">Status</th>
-                    </tr>
+                        <th class="p-3 text-left">Aksi</th> </tr>
                 </thead>
                 <tbody id="salesHistoryTableBody">
                     </tbody>
             </table>
+
+            <div class="delete-all-button-container">
+                <button id="clearHistoryButton" class="delete-all-button">Hapus Seluruh Riwayat Penjualan</button>
+            </div>
             
         </div>
     </div>
@@ -152,34 +186,69 @@
             let salesHistory = JSON.parse(localStorage.getItem('salesHistory')) || [];
             const salesHistoryTableBody = document.getElementById('salesHistoryTableBody');
             const grandTotalSalesElement = document.getElementById('grandTotalSales');
-            let grandTotal = 0;
-
-            if (salesHistory.length === 0) {
-                salesHistoryTableBody.innerHTML = '<tr><td colspan="8" class="p-3 text-center text-gray-500">Belum ada riwayat penjualan.</td></tr>';
-            } else {
-                salesHistory.forEach(transaction => {
-                    grandTotal += transaction.totalAmount;
-
-                    const row = document.createElement('tr');
-                    let itemsList = transaction.items.map(item =>
-                        `${item.name} (${item.quantity % 1 !== 0 ? item.quantity.toFixed(2) : item.quantity})`
-                    ).join(', ');
-
-                    row.innerHTML = `
-                        <td class="p-3">${transaction.transactionId}</td>
-                        <td class="p-3">${transaction.timestamp}</td>
-                        <td class="p-3">${itemsList}</td>
-                        <td class="p-3 text-right">Rp ${transaction.totalAmount.toLocaleString('id-ID')}</td>
-                        <td class="p-3 text-right">Rp ${transaction.paymentReceived.toLocaleString('id-ID')}</td>
-                        <td class="p-3 text-right">Rp ${transaction.change.toLocaleString('id-ID')}</td>
-                        <td class="p-3 text-right">${transaction.debtAmount > 0 ? `Rp ${transaction.debtAmount.toLocaleString('id-ID')}` : '-'}</td>
-                        <td class="p-3">${transaction.status === 'utang' ? '<span class="text-red-600 font-semibold">Utang</span>' : '<span class="text-green-600 font-semibold">Lunas</span>'}</td>
-                    `;
-                    salesHistoryTableBody.appendChild(row);
-                });
-            }
+            const clearHistoryButton = document.getElementById('clearHistoryButton');
             
-            grandTotalSalesElement.textContent = `Rp ${grandTotal.toLocaleString('id-ID')}`;
+            const renderSalesHistory = () => {
+                let grandTotal = 0;
+                salesHistoryTableBody.innerHTML = ''; // Clear existing rows
+
+                if (salesHistory.length === 0) {
+                    salesHistoryTableBody.innerHTML = '<tr><td colspan="9" class="p-3 text-center text-gray-500">Belum ada riwayat penjualan.</td></tr>'; // colspan 9
+                } else {
+                    salesHistory.forEach(transaction => {
+                        grandTotal += transaction.totalAmount;
+
+                        const row = document.createElement('tr');
+                        // Add data-transaction-id for easy identification
+                        row.dataset.transactionId = transaction.transactionId; 
+
+                        let itemsList = transaction.items.map(item =>
+                            `${item.name} (${item.quantity % 1 !== 0 ? item.quantity.toFixed(2) : item.quantity})`
+                        ).join(', ');
+
+                        row.innerHTML = `
+                            <td class="p-3">${transaction.transactionId}</td>
+                            <td class="p-3">${transaction.timestamp}</td>
+                            <td class="p-3">${itemsList}</td>
+                            <td class="p-3 text-right">Rp ${transaction.totalAmount.toLocaleString('id-ID')}</td>
+                            <td class="p-3 text-right">Rp ${transaction.paymentReceived.toLocaleString('id-ID')}</td>
+                            <td class="p-3 text-right">Rp ${transaction.change.toLocaleString('id-ID')}</td>
+                            <td class="p-3 text-right">${transaction.debtAmount > 0 ? `Rp ${transaction.debtAmount.toLocaleString('id-ID')}` : '-'}</td>
+                            <td class="p-3">${transaction.status === 'utang' ? '<span class="text-red-600 font-semibold">Utang</span>' : '<span class="text-green-600 font-semibold">Lunas</span>'}</td>
+                            <td class="p-3">
+                                <button class="delete-single-button" data-id="${transaction.transactionId}">Hapus</button>
+                            </td>
+                        `;
+                        salesHistoryTableBody.appendChild(row);
+                    });
+                }
+                grandTotalSalesElement.textContent = `Rp ${grandTotal.toLocaleString('id-ID')}`;
+            };
+
+            renderSalesHistory(); // Initial render
+
+            // Event listener for clearing all history
+            clearHistoryButton.addEventListener('click', () => {
+                if (confirm('Apakah Anda yakin ingin menghapus SEMUA riwayat penjualan? Tindakan ini tidak dapat dibatalkan.')) {
+                    localStorage.removeItem('salesHistory');
+                    salesHistory = []; // Clear the in-memory array
+                    renderSalesHistory(); // Re-render the table with empty history
+                    alert('Seluruh riwayat penjualan telah dihapus.');
+                }
+            });
+
+            // Event delegation for deleting individual rows
+            salesHistoryTableBody.addEventListener('click', (event) => {
+                if (event.target.classList.contains('delete-single-button')) {
+                    const transactionIdToDelete = event.target.dataset.id;
+                    if (confirm(`Apakah Anda yakin ingin menghapus transaksi dengan ID ${transactionIdToDelete}?`)) {
+                        salesHistory = salesHistory.filter(transaction => transaction.transactionId !== transactionIdToDelete);
+                        localStorage.setItem('salesHistory', JSON.stringify(salesHistory));
+                        renderSalesHistory(); // Re-render the table
+                        alert(`Transaksi dengan ID ${transactionIdToDelete} telah dihapus.`);
+                    }
+                }
+            });
         });
     </script>
 </body>
