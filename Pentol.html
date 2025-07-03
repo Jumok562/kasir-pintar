@@ -1,0 +1,1467 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Kasir Pintar</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      /* General Body and Container Styling */
+body {
+    font-family: 'Poppins', sans-serif; /* A modern, clean font */
+    background: linear-gradient(to right, #6a11cb 0%, #2575fc 100%); /* Gradient background */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh; /* Full viewport height */
+    margin: 0;
+    color: #333;
+}
+
+.container {
+    max-width: 950px; /* Slightly wider for more content */
+    margin: 40px auto; /* Centered with some vertical margin */
+    padding: 0; /* Remove default padding */
+}
+
+/* Main Card Styling */
+.bg-white {
+    background-color: #ffffff;
+    border-radius: 1.25rem; /* More prominent rounded corners */
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15); /* Stronger, softer shadow */
+    padding: 2.5rem; /* More internal padding */
+    position: relative;
+    overflow: hidden; /* For any overflow content like shadows */
+}
+
+/* Header Styling */
+h1 {
+    font-size: 3rem; /* Larger, bolder title */
+    font-weight: 700; /* Bolder font */
+    color: #1a202c; /* Darker text for strong contrast */
+    text-align: center;
+    margin-bottom: 0.75rem; /* Closer to description */
+    letter-spacing: -0.025em; /* Slightly tighter letter spacing */
+}
+
+.text-gray-600 {
+    font-size: 1.1rem; /* Slightly larger description */
+    color: #5f6b7a; /* A softer dark gray */
+    text-align: center;
+    margin-bottom: 2.5rem; /* More space below description */
+}
+
+/* Input Section Styling */
+.bg-gray-50 {
+    background-color: #f8fafc; /* Very light, clean background for input section */
+    border: 1px solid #e0e7ff; /* Subtle light blue border */
+    border-radius: 0.75rem; /* Rounded corners */
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05); /* Inner shadow for depth */
+}
+
+label {
+    font-weight: 600;
+    color: #4a5568;
+    margin-bottom: 0.4rem; /* More space between label and input */
+}
+
+input[type="text"],
+input[type="number"] {
+    border: 1px solid #cbd5e0;
+    border-radius: 0.5rem; /* Slightly more rounded inputs */
+    padding: 0.75rem 1rem; /* More padding inside inputs */
+    font-size: 1rem;
+    transition: all 0.3s ease-in-out; /* Smoother transitions */
+    background-color: #ffffff; /* White input background */
+    box-shadow: inset 0 1px 2px rgba(0,0,0,0.03); /* Subtle inner shadow */
+}
+
+input[type="text"]:focus,
+input[type="number"]:focus {
+    border-color: #6366f1; /* Deeper purple-blue on focus */
+    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.3); /* Larger, softer focus ring */
+    outline: none; /* Remove default outline */
+}
+
+/* Button Styling */
+button {
+    padding: 0.75rem 1.5rem; /* More padding for buttons */
+    font-size: 1.05rem; /* Slightly larger text */
+    font-weight: 600;
+    border-radius: 0.75rem; /* More rounded buttons */
+    transition: all 0.25s ease-in-out;
+    cursor: pointer;
+    border: none; /* Remove default border */
+}
+
+button:hover:not(:disabled) {
+    transform: translateY(-2px); /* More pronounced lift on hover */
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1); /* Shadow on hover */
+}
+
+button:active:not(:disabled) {
+    transform: translateY(0);
+    box-shadow: none;
+}
+
+#addButton {
+    background-color: #6366f1; /* Vibrant purple-blue for add */
+    color: #ffffff;
+}
+#addButton:hover {
+    background-color: #4f46e5;
+}
+
+#checkoutButton {
+    background-color: #10b981; /* Bright green for checkout */
+    color: #ffffff;
+}
+#checkoutButton:hover {
+    background-color: #059669;
+}
+#checkoutButton:disabled {
+    background-color: #a0aec0; /* Soft gray for disabled */
+    cursor: not-allowed;
+    transform: none; /* No lift when disabled */
+    box-shadow: none;
+}
+
+/* Suggestions Box Styling */
+/* REVISED: position: absolute; relative to its parent .flex-1 */
+#suggestions {
+    border: 1px solid #e2e8f0;
+    border-radius: 0.5rem;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1); /* Stronger shadow */
+    background-color: #ffffff;
+    z-index: 20; /* Higher z-index to ensure visibility */
+    position: absolute; /* Relative to parent with position:relative */
+    width: 100%; /* Take full width of parent .flex-1 */
+    max-height: 220px;
+    overflow-y: auto;
+    top: calc(100% + 5px); /* Position directly below the input */
+    left: 0;
+}
+
+.product-item {
+    padding: 0.85rem 1rem;
+    border-bottom: 1px solid #edf2f7;
+    font-size: 0.95rem;
+    color: #2d3748;
+    cursor: pointer;
+}
+.product-item:last-child {
+    border-bottom: none;
+}
+.product-item:hover {
+    background-color: #eef2ff; /* Very light blue-purple on hover */
+    color: #4338ca; /* Darker blue-purple on hover */
+}
+
+/* Table Styling */
+table {
+    width: 100%;
+    border-collapse: separate; /* Use separate to allow border-spacing */
+    border-spacing: 0 0.75rem; /* Space between rows */
+    background-color: #ffffff; /* White background for the table area */
+    border-radius: 0.75rem;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.05); /* Subtle shadow for table */
+    overflow: hidden; /* Hide any overflow from rounded corners */
+}
+
+thead th {
+    background-color: #eef2ff; /* Light purple-blue header */
+    color: #4338ca; /* Darker purple-blue text */
+    font-weight: 700;
+    padding: 1rem 1.5rem; /* More padding */
+    font-size: 0.95rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    text-align: left; /* Default left align */
+}
+
+thead th:first-child { border-top-left-radius: 0.75rem; }
+thead th:last-child { border-top-right-radius: 0.75rem; }
+
+
+tbody tr {
+    background-color: #ffffff;
+    transition: background-color 0.2s ease-in-out, transform 0.1s ease-in-out;
+    border-radius: 0.5rem; /* Rounded corners for rows */
+    box-shadow: 0 2px 8px rgba(0,0,0,0.03); /* Subtle shadow for each row */
+}
+
+tbody tr:hover {
+    background-color: #f0f4f8; /* Lighter gray on row hover */
+    transform: translateY(-1px); /* Slight lift on row hover */
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08); /* More prominent shadow on row hover */
+}
+
+td {
+    padding: 1rem 1.5rem;
+    font-size: 0.9rem;
+    color: #4a5568;
+    vertical-align: middle; /* Align text vertically in middle */
+}
+
+td:first-child {
+    font-weight: 500; /* Make product name slightly bolder */
+    color: #2d3748;
+}
+
+.delete-btn {
+    padding: 0.5rem 0.8rem;
+    border-radius: 0.5rem; /* More rounded delete button */
+    font-size: 0.85rem;
+    font-weight: 600;
+    background-color: #fecaca; /* Lighter red background */
+    color: #dc2626; /* Stronger red text */
+    border: none; /* Remove border */
+    transition: all 0.2s ease-in-out;
+}
+.delete-btn:hover {
+    background-color: #fca5a5;
+    color: #b91c1c;
+    transform: translateY(-1px);
+}
+.delete-btn:active {
+    transform: translateY(0);
+}
+
+/* Summary and Payment Section */
+.payment-section-card {
+    background-color: #eef2ff; /* Light purple-blue background */
+    border: 1px solid #c7d2fe;
+    border-radius: 0.75rem;
+    padding: 1.75rem;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+}
+
+.payment-section-card .flex.justify-between.mb-2 {
+    margin-bottom: 1.25rem; /* More space before total */
+}
+
+#totalAmount, #changeAmount {
+    font-size: 1.8rem; /* Much larger font for totals */
+    font-weight: 700;
+    color: #4338ca; /* Deep purple-blue for totals */
+    letter-spacing: -0.025em;
+}
+
+#changeAmount.text-red-500 {
+    color: #ef4444; /* Ensure red color for negative change */
+}
+
+/* Adjustments for better positioning of suggestions */
+/* Ini adalah bagian PENTING yang sudah ada di CSS Anda, tapi saya pastikan di sini */
+.flex-1 {
+    position: relative; /* Needed for absolute positioning of suggestions */
+}
+
+/* Added a small style for pop-up alert */
+.alert {
+    background-color: #6366f1;
+    color: white;
+    padding: 15px;
+    border-radius: 8px;
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 100;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    display: none; /* Hidden by default */
+}
+
+/* Ensure the total and change amount are right-aligned as per the original design intent for numbers */
+#totalAmount, #changeAmount {
+    text-align: right;
+    display: inline-block; /* To allow text-align to work on span */
+    width: auto; /* Adjust width as needed */
+}
+
+/* Add a subtle animation to the body background */
+body::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(45deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0) 100%);
+    pointer-events: none;
+    z-index: -1;
+}
+
+/* Import Poppins font from Google Fonts (add this to the top of your style.css) */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+    </style>
+    </head>
+<body class="bg-gray-50">
+    <div class="container mx-auto p-6 max-w-4xl">
+        <div class="bg-white rounded-xl shadow-md p-6">
+            <h1 class="text-3xl font-bold text-center text-blue-600 mb-6">Kasir Pintar</h1>
+            <p class="text-gray-600 mb-8 text-center">Ketik nama barang dan sistem akan mencocokkan secara otomatis</p>
+
+            <nav class="mb-6 text-center">
+                <a href="Pentol.html" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition mx-2">Kasir</a>
+                <a href="riwayat.html" class="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition mx-2">Riwayat Penjualan</a>
+            </nav>
+
+            <div class="mb-8 p-4 bg-gray-50 rounded-lg">
+                <div class="flex gap-4 mb-4">
+                    <div class="flex-1 relative"> 
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Cari Barang</label>
+                        <input type="text" id="searchInput"
+                               class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                               placeholder="Ketik nama barang...">
+                        <div id="suggestions" class="mt-1 border rounded-lg hidden max-h-60 overflow-auto"></div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Jumlah</label>
+                        <input type="text" id="quantityInput"
+                               class="w-24 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                               placeholder="Contoh: 0.5, setengah">
+                    </div>
+                    <div class="flex items-end">
+                        <button id="addButton"
+                                class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+                            Tambah
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mb-8">
+                <h2 class="text-xl font-semibold mb-4">Daftar Belanja</h2>
+                <table class="w-full border-collapse">
+                    <thead>
+                        <tr class="bg-gray-100">
+                            <th class="p-3 text-left">Barang</th>
+                            <th class="p-3 text-right">Harga Satuan</th>
+                            <th class="p-3 text-right">Jumlah</th>
+                            <th class="p-3 text-right">Subtotal</th>
+                            <th class="p-3"></th>
+                        </tr>
+                    </thead>
+                    <tbody id="cartItems">
+                        </tbody>
+                </table>
+            </div>
+
+            <div class="flex justify-end mb-6">
+                <div class="w-full md:w-1/2">
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <div class="flex justify-between mb-2">
+                            <span class="font-medium">Total Belanja:</span>
+                            <span id="totalAmount" class="font-bold">Rp 0</span>
+                        </div>
+                        <div class="flex items-center mb-4">
+                            <span class="font-medium mr-2">Uang Diterima:</span>
+                            <input type="number" id="paymentInput"
+                                   class="flex-1 px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                                   placeholder="Jumlah uang">
+                        </div>
+                        <div class="flex justify-between py-2 border-t">
+                            <span class="font-medium">Kembalian:</span>
+                            <span id="changeAmount" class="font-bold">Rp 0</span>
+                        </div>
+                    </div>
+                    <button id="checkoutButton" disabled
+                            class="mt-4 w-full py-3 bg-gray-400 text-white rounded-lg cursor-not-allowed">
+                        Proses Pembayaran
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Database produk
+        const products = {
+  "beras": {
+    "naga": 70000,
+    "kepongpong_5kg": 75000,
+    "kepongpong_10kg": 155000,
+    "tinta_10kg": 145000,
+    "tinta_5kg": 70000,
+    "bomas_5kg": 80000,
+    "labi_labi_5kg": 75000,
+    "mon_mon": 76000,
+    "beras_ketan": 14000
+  },
+  "kerupuk": {
+    "batok_1kg": 18000,
+    "batok_1ball": 85000,
+    "iris_1kg": 18000,
+    "iris_1ball": 85000,
+    "ukir_merpati_1kg": 18500,
+    "ukir_merpati_1ball": 87500,
+    "serius_putih_1kg": 19500,
+    "serius_putih_1ball": 95000,
+    "serius_kuning_1kg": 19500,
+    "serius_kuning_1ball": 95000,
+    "kancing_1kg": 20000,
+    "kancing_1ball": 97500,
+    "ampelang_siluk_1kg": 19000,
+    "ampelang_siluk_1ball": 90000,
+    "kerupuk_pedas_1kg": 20000,
+    "kerupuk_pedas_1ball": 97000
+  },
+  "obat": {
+    "bodrexin": 7000,
+    "okepass": 500,
+    "paramex": 3500,
+    "bodrex_extra": 3500,
+    "promag": {
+      "unit": 3500,
+      "1pak": 8500
+    },
+    "oskado_sp": 3500,
+    "mixagrip_flu_dan_batuk": 3500,
+    "puyer_38": {
+      "unit": 1000,
+      "1pak": 11000
+    },
+    "diapet": 7500,
+    "komix": 2000,
+    "antangin": 4000,
+    "tolak_angin": 4500,
+    "bodrex_migra": 3500,
+    "mixadin": 3500,
+    "mixagrip_flu": 3500,
+    "oskadon": 3000,
+    "saridon": 7000,
+    "antimo": 8000,
+    "ultraflu": 4000,
+    "bodrex_pilex_dan_batuk": 8000,
+    "bodrex": {
+      "unit": 500,
+      "1pak": 4500
+    }
+  },
+  "eskrim": {
+    "haku_dobel_crispi_coco": 5000,
+    "haku_dobel_crispi_strobery": 5000,
+    "haku_dobel_crispi_coco_vanila": 5000,
+    "haku_tokyo_cheese": 9000,
+    "haku_macha_monaka": 13000,
+    "haku_vanilla_monaka": 13000,
+    "haku_bluberi_cheese_cake": 9000,
+    "haku_tiramisu": 9000,
+    "waku2_loly_melon": 2000,
+    "waku2_loly_jambu": 2000,
+    "waku2_nanas": 2000,
+    "waku2_coco_loop": 2000,
+    "waku2_coco_beri_loop": 2000,
+    "waku2_mangga_loop": 2000,
+    "waku2_dracola": 3000,
+    "waku2_cotton_candy": 3000,
+    "frost_bite_moci_coklat": 3000,
+    "frost_bite_moci_oreo": 3000,
+    "frost_bite_moci_stroberi": 3000,
+    "frost_bite_coco_vanila_rainbow": 3000,
+    "frost_bite_vita_fruit": 3000,
+    "frost_bite_coconut_boba": 4000,
+    "frost_bite_boba": 4000,
+    "frost_bite_coklat_vanila": 5000,
+    "frost_bite_stroberi_vanila": 5000,
+    "frost_bite_tuti_fruti": 5000,
+    "frost_bite_oreo_cup": 5000,
+    "frost_bite_oreo": 5000,
+    "frost_bite_kranci_dobel_coklat": 5000,
+    "frost_bite_choco_nut": 5000,
+    "frost_bite_black_pink": 5000,
+    "frost_bite_kukis_krim": 5000,
+    "ais_coklat_krispi": 5000,
+    "ais_krispi_ball": 5000,
+    "ais_choco_malt": 2000,
+    "ais_moci_mangga_klepon": 3000,
+    "ais_coklat_stik": 2500,
+    "ais_coklat_vanila_stik": 3000,
+    "ais_moci": 3000,
+    "ais_histeria": 8500,
+    "ais_jagung": 3000,
+    "ais_melt_bingo_strowberi_cone": 5000,
+    "ais_coco_beri_max_cone": 7000,
+    "ais_3in1_cup": 9000,
+    "ais_fruizzi_anggur": 2000,
+    "ais_fruizzi_bluberi": 3000,
+    "ais_nanas": 2000,
+    "ais_mangga": 4000,
+    "ais_jeruk": 2000,
+    "ais_taro_crispi": 3000,
+    "momo_yogurt": 2000,
+    "ais_semangka": 2000,
+    "ais_miki_miki": 2000,
+    "ais_kacang_ijo": 4000,
+    "ais_milk_melon": 3000,
+    "ais_coffee_crispi_stroberi": 3500,
+    "ais_fruti_roll": 3000
+  },
+  "odol": {
+    "close_up": 8000,
+    "ciptaden_75g": 4000,
+    "pepsodent_75g": 6000,
+    "kodomo": 6500,
+    "pepsodent": 3000,
+    "ciptaden": 2500
+  },
+  "sikat": {
+    "sikat_gigi_kodomo_soft": 8500,
+    "sikat_gigi_ciptaden": 3500,
+    "sikat_gigi_cussons": 9000
+  },
+  "bumbu": {
+    "megic": {
+      "unit": 1000,
+      "1renteng": 6500
+    },
+    "masako_ayam": {
+      "unit": 500,
+      "1pack": 5500
+    },
+    "sedap_kaldu": {
+      "unit": 500,
+      "1renteng": 5500
+    },
+    "racik_tepung_bumbu_tempe": {
+      "unit": 1500,
+      "1renteng": 12000
+    },
+    "racik_nasi_goreng": {
+      "unit": 2000,
+      "1renteng": 17500
+    },
+    "racik_ikan": {
+      "unit": 2500,
+      "1renteng": 20500
+    },
+    "saos_tomat_275g_botol": 10000,
+    "saos_extra_pedas_275g_botol": 12000,
+    "saos_tomat_135g_botol": 6000,
+    "saos_pedas_135g_botol": 6500,
+    "sambal_indo_food_extra_pedas": 3000,
+    "kecap_manis_indo_food": 2000,
+    "kecap_sedap_500": {
+      "unit": 500,
+      "1renteng": 5000
+    },
+    "kecap_sedap_728g": 20500,
+    "kecap_2k": 2000,
+    "kecap_botol_sedang": 19000,
+    "kecap_botol_besar": 33000,
+    "garam": 2000
+  },
+  "masakan": {
+    "bawang putih":30000,
+    "sasa_santan": 5000,
+    "agar_agar": 4500,
+    "teh_99": {
+      "unit": 2000,
+      "1pack": 18500
+    },
+    "tiara_kucing": 3000,
+    "suk_un": 5000,
+    "cuka": 3500,
+    "teh_candi": 6500,
+    "teh_celup": 6000,
+    "teh_sari_wangi": 6500,
+    "tusuk_sate": 6500,
+    "suun": 5000,
+    "gula": 15500,
+    "gula_merah": 19000,
+    "saos_sambal_plastik": 3000,
+    "saos_tomat_plastik": 2500,
+    "sasa_micin": {
+      "14g": 1000,
+      "30g": 2000,
+      "85g": 5000,
+      "220g": 10000
+    }
+  },
+  "minyak": {
+    "minyak_riski": 16500,
+    "minyak_zafira_botol": 18000,
+    "minyak_kita": 17000,
+    "zafira": 17000,
+    "minyak_curah": 17500
+  },
+  "sabun": {
+    "sabun_giv": 3000,
+    "lervia": 4500,
+    "shinsui": 5000,
+    "lux": 4700,
+    "cussons_sabun_mandi": 4500,
+    "ratu": 6500,
+    "rexsona_men":2500,
+    "rexsona_cwk": 3000,
+    "life_boy": {
+      "unit": 3500,
+      "3_biji": 10000
+    }
+  },
+  "softek": {
+    "softek_biasa": {
+      "unit": 500,
+      "1renteng": 4500
+    },
+    "softek_charm_night": {
+      "unit": 3000,
+      "1renteng": 27500
+    }
+  },
+  "soklin": {
+    "mama_lemon_430ml": 8500,
+    "mama_lime_430ml": 8500,
+    "mama_lemon_1k": 1000,
+    "mama_lemon_2k": 2000,
+    "soklin_lantai_5k": 5000,
+    "downy": {
+      "1unit": 500,
+      "1renteng": 5000
+    },
+    "weng_ekonomi": 1000,
+    "weng_cemerlang": {
+      "iket": 3500
+    },
+    "bomm_5k": 5000,
+    "daia_1k": 10000,
+    "soft_tergent_10k": 10000,
+    "soft_tergent_5k": 5000,
+    "soft_tergent_1000": {
+      "unit": 1000,
+      "1renteng": 9000
+    },
+    "rinso_1000": {
+      "unit": 1000,
+      "1renteng": 9000
+    },
+    "boom_putih_5k": 5000,
+    "soklin_cair": {
+      "unit": 500,
+      "1renteng": 5000
+    }
+  },
+  "lotion": {
+    "soffel_1renteng": 11000,
+    "autan": {
+      "unit": 1000,
+      "1renteng": 11000
+    },
+    "lovely_sampo": 5000,
+    "kelly_creme": 6500,
+    "skiva": 17500,
+    "citra_sampo": 7500,
+    "viva_likuid": 6500,
+    "marina": 6000,
+    "air_mawar": 6000,
+    "sidia": 2500,
+    "fresh_care": 12500
+  },
+  "rexona": {
+    "nivea_roll_on_kecil": 11500,
+    "nivea_men": 21500,
+    "rexona_roll_on": 19000,
+    "rexona_activ": 23500,
+    "posh_roll_on": 14000,
+    "pixy_roll_on": 13000
+  },
+  "parfum": {
+    "eskulin_kecil": 10000,
+    "pucelle": 13000,
+    "fresh_parfum": 12000,
+    "casablangka": 9000,
+    "casablangka_besar": 16000,
+    "napoleon": 25000,
+    "casablangka_kaleng": 15000,
+    "spalding": 15000,
+    "gatsby": 15000,
+    "aleksander": 30000,
+    "piere_kardin": 32000,
+    "posh_men_kaleng": 20000,
+    "posh_kaleng": 20000,
+    "eskulin_besar": 17000
+  },
+  "sampo": {
+    "sunsilk": {
+      "unit": 1000,
+      "1renteng": 11000
+    },
+    "pantene_sampo": {
+      "unit": 1000,
+      "renteng": 11000
+    },
+    "pantene_condisoner": {
+      "unit": 1000,
+      "1renteng": 5000
+    },
+    "emeron_sampo": {
+      "unit": 500,
+      "renteng": 5000
+    },
+    "clear_men_sampo": 13500,
+    "sampo_cussons_50ml": 8500,
+    "kodomo_sampo_45ml": 3500,
+    "kodomo_plus_sikat": 8500,
+    "zing": {
+      "unit": 500,
+      "1renteng": 5500
+    },
+    "pentin": {
+      "unit": 1000,
+      "1renteng": 11000
+    },
+    "emeron": {
+      "unit": 500,
+      "1renteng": 5500
+    }
+  },
+  "bayi": {
+    "minyak_telon_gajah_60ml": 17500,
+    "minyak_telon_gajah_30ml": 10000,
+    "m_telon_lang_60ml": 17500,
+    "m_telon_lang_30ml": 10500,
+    "baby_oil_50ml": 12500,
+    "cottonbud": 2000,
+    "tisu_basa": 7000
+  },
+  "bedak": {
+    "bedak_my_baby_135g": 10500,
+    "bedak_my_baby_90g": 7500
+  },
+  "pampers": {
+    "momoko_xl3": 6000,
+    "momoko_l3": 5000,
+    "momoko_l1": 1700,
+    "momoko_m1": 1700,
+    "meris_l": {
+      "unit": 2500,
+      "1renteng": 12500
+    },
+    "meris_m": 2500,
+    "meris_s11": 15500,
+    "meris_m9": 17500,
+    "meris_l8": 18500,
+    "meris_xl7": 19500
+  },
+  "tisu": {
+    "tisu_paseo_200": 9500,
+    "tisu_tessa_250": 10000,
+    "tisu_paseo_smart": 11500,
+    "tisu_multi": 9000,
+    "tisu_nice": 7500,
+    "tisu_jolly": 6500,
+    "tisu_jolly_besar": 8500
+  },
+  "tepung": {
+    "tepung_kanji_1kg": 10000,
+    "tepung_terigu_1kg": 7500,
+    "tepung_ketan": 10500,
+    "tepung_beras": 7500,
+    "tepung_segitiga": 11000,
+    "tepung_lencana_merah": 9500
+  },
+  "telur": {
+    "telur_1kg": 28000,
+    "0_5kg": 14000,
+    "0_25kg": 7000
+  },
+  "mie": {
+    "mie_eko_pak": 10000,
+    "mie_eko_renteng": {
+      "unit": 2000,
+      "1pack": 19500
+    },
+    "mie_sukses": 4000,
+    "popmie_snake_time": 3300,
+    "popmie_laper": 5000,
+    "indomie": 3000,
+    "wow_spaghetti": 4000,
+    "bihun_jagung": 7500,
+    "mie_gelas": {
+      "unit": 1000,
+      "1renteng": 9000
+    }
+  },
+  "minuman": {
+    "teh_kotak": 4000,
+    "olatte": 10000,
+    "vurota_botol": 2500,
+    "aquaviva": 2500,
+    "aqua": 3000,
+    "nurja_1liter": 5000,
+    "nurja_botol_kecil": 2500,
+    "nurja_dus": 14500,
+    "vurota_dus": 14500,
+    "kratingdeng": 6000,
+    "bearbran": 10000,
+    "larutan_kaleng": 6500,
+    "larutan_air_kaleng": 3500,
+    "larutan_air_botol": 7500,
+    "larutan_anak_air": 6500,
+    "larutan_anak_kaleng": 5500,
+    "adem_sari_botol": 7000,
+    "adem_sari_kaleng": 7500,
+    "hemaviton_botol": 7000,
+    "pocari": 6500,
+    "golda": 3500,
+    "nutribost": 6500,
+    "teh_pucuk": 3500,
+    "fresh_tea": 3500,
+    "floridina": 3000,
+    "fanta_k": 3500,
+    "fanta_merah_k": 3500,
+    "fanta_merah_b": 4500,
+    "sprite_k": 3500,
+    "sprite_b": 4500,
+    "coca_cola_k": 3500,
+    "coca_cola_b": 4500
+  },
+  "susu": {
+    "susu_dancow_kotak": 3000,
+    "susu_milo_kotak": 3000,
+    "susu_bendera_kotak": 3500,
+    "susu_cimory_kotak_125ml": 3000,
+    "susu_cimory_kotak_250ml": 7000,
+    "indomilk_shaset": {
+      "unit": 1500,
+      "1pack": 8500
+    },
+    "susu_kaleng_tiga_sapi": 12500,
+    "susu_kaleng_putih": 12500,
+    "frisen_fleg": 12000,
+    "ultra_susu_kotak": 3500,
+    "indomilk_susu_kotak": 3000,
+    "indomilk_botol": 4500,
+    "milku": 3500,
+    "ultra_milk_coklat": 7500,
+    "ultra_milk_strawbery": 7000,
+    "frisen_fleg_225ml": 7000
+  },
+  "kopi": {
+    "kapal_api_saset": {
+      "unit": 1000,
+      "1pack": 9000
+    },
+    "top_kopi_plus": {
+      "unit": 1000,
+      "1pack": 8500
+    },
+    "top_kopi_white": {
+      "unit": 1500,
+      "1pack": 17500
+    },
+    "susu_jahe": {
+      "unit": 2000,
+      "1pack": 18500
+    },
+    "gooday": {
+      "unit": 2500,
+      "1pack": 20500
+    },
+    "top_kopi_gula_aren": {
+      "unit": 2000,
+      "1pack": 18500
+    },
+    "top_kopi_susu": {
+      "unit": 1500,
+      "1pack": 17500
+    },
+    "abc_susu": {
+      "unit": 2000,
+      "1pack": 18500
+    },
+    "top_kopi_murni": {
+      "unit": 1000,
+      "1pack": 8000
+    }
+  },
+  "saset": {
+    "segar_dingin": {
+      "unit": 1000,
+      "1renteng": 10500
+    },
+    "marimas_1renteng": 4500,
+    "jasjus": {
+      "1renteng": 4000,
+      "1unit": 500
+    },
+    "milo_shaset": {
+      "unit": 2500,
+      "1pack": 23500
+    },
+    "dancaw": {
+      "unit": 4000,
+      "1pack": 37500
+    },
+    "sun_mp_asi": {
+      "unit": 1500,
+      "1pack": 17000
+    },
+    "extrajoos": {
+      "unit": 1500,
+      "1pack": 15000
+    },
+    "kukubima": 6500,
+    "hemaviton": {
+      "unit": 1500,
+      "1pack": 15000
+    },
+    "prambozen": 4000
+  },
+  "plastik_mika": {
+    "plastik_kendi_1_4kg": 8000,
+    "plastik_bening_1kg": 5000,
+    "plastik_buram_1kg": 4000,
+    "plastik_bening_1_2": 3000,
+    "plastik_buram_1_2": 3000,
+    "plastik_bening_1_4": 2500,
+    "kersek_putih": 4000,
+    "kersek_hitam": 3500,
+    "plastik_tp_8_9_10": 2500,
+    "plastik_tp_11": 3500,
+    "plastik_tp_12": 4000,
+    "mika_c": 7500
+  },
+  "makanan": {
+    "kenzler_sosis": 9000,
+    "sosis_sonice":1000,
+    "chitato_rasa_sapi_panggang": 5000,
+    "potabee_grilled_seaweed": 5000,
+    "potabee_sapi_panggang_bbq": 5000,
+    "garuda_kacang_kulit_roasted_peanuts": 5000,
+    "japota_rasa_rumput_laut_jepang": 5000,
+    "wistok_rasa_jagung_bakar_roasted_corn": 5000,
+    "taro_net_petualangan_seaweed": 5000,
+    "qtela_singkong_rasa_original": 5000,
+    "sari_gandum": 8500,
+    "superco": 7500,
+    "nextar_90g": 7500,
+    "nextar_noir": 7000,
+    "vanilla_gorio": 6500,
+    "happy_tos": 9500,
+    "garuda_rosta_kacang_panggang": 9500,
+    "pilus_nusantara": 6000,
+    "chimi": 8500,
+    "milo_cup": 9000,
+    "chiki_ball_chiki_twisko": {
+      "unit": 2000,
+      "1pack": 18000
+    },
+    "chitato": 2000,
+    "kripik_singkong_putih": 4000,
+    "kripik_singkong_kuning": 5500,
+    "kripik_pisang": 6000,
+    "kripik_kacang": 5500,
+    "kripik_sukun": 1000,
+    "kripik_singkong_500": 500,
+    "renginang_1k": 1000,
+    "kripik_tempe": 500
+  },
+  "nyamuk": {
+    "vape_aerosol_240ml": 16500,
+    "vape_bakar": 5000,
+    "baigon": 4500
+  },
+  "peralatan": {
+    "pembersih_wajan": 2000,
+    "pensil_ijo": 1500,
+    "pensil_joyko": 1000,
+    "ballpoint_pen": 2000,
+    "standart_pen": 1500,
+    "faster_pen": 2500,
+    "faster_pen_tekan": 3500,
+    "vision_pen": 2500,
+    "biji_steples_hijau": 1500,
+    "biji_steples_biru": 3500,
+    "penghapus": 1000,
+    "steples": 13500,
+    "stepler_tokyo": 18500,
+    "buku_gambar": 3500,
+    "buku_sweet": {
+      "per_biji": 2500,
+      "paket": 24000
+    },
+    "buku_sidu_32": {
+      "per_biji": 3500,
+      "paket": 26500
+    },
+    "buku_sidu_38": {
+      "per_biji": 4000,
+      "paket": 30000
+    },
+    "buku_princes": {
+      "per_biji": 3000,
+      "paket": 25000
+    },
+    "tapes_borneo": 3000,
+    "tapes_kuning": 5000,
+    "tapes_daimaru": 7000,
+    "tapes_daimaru_hitam": 9500,
+    "tapes_premium": 11500,
+    "solasi_bening": 4000,
+    "solasi_bening_besar": 9500,
+    "solasi_coklat": 10500,
+    "amplop": 10000,
+    "amplop_besar": 14500,
+    "kertas_minyak": 10000,
+    "shower": 4000
+  },
+  "cemilan": {
+    "taro": 2000,
+    "chiki_twist_2k": {
+      "unit": 2000,
+      "1renteng": 19000
+    },
+    "jely_agar":1000,
+    "tiara": 2000,
+    "chitato_cemilan": 2000,
+    "chitato_lite": 5000,
+    "miko": 2000,
+    "twisko": 1000,
+    "tictac": 1000,
+    "pilus": 1000,
+    "anaba": 2000,
+    "potato": 2000,
+    "garuda_rosta": 2000,
+    "vegetable_chis": 2000,
+    "zyluc": 2000,
+    "nabati": 2000,
+    "superco_cemilan": 2000,
+    "gery_malkist_wafello": 1000,
+    "poker_king": 2000,
+    "yupi_sapi_chop_chop_neon_stik": 5000,
+    "yupi_dip_it_dip": 2000,
+    "yupi pizza":1500,
+    "pocky": 2000,
+    "yupi_bolicius_dino_land_seaword_choco_glee_baby_bear_litle_star_mango_coco_yupi_love_burger": 1000,
+    "bubblegum_chupa_chips": 9000,
+    "mentos_1bungkus": 7500,
+    "kopiko_1bungkus": 10500,
+    "tamarin_1bungkus": 7500,
+    "kis_1bungkus": 7500,
+    "relaxa_1bungkus": 7000,
+    "gery": 500,
+    "selai_olai": 2000,
+    "nori": 2000,
+    "modi_chips": 1000,
+    "superstar": 1000,
+    "yosan": 500,
+    "yosan_permen_karet": 500,
+    "permen_karet_mini_ball":1000,
+    "parago":1000,
+    "mpeng_lolipop": 2000,
+    "permen_pocong": {
+      "per_4_biji": 1000,
+      "perbiji": 500
+    },
+    "marsh mello":2000,
+    "permen_kaki": 500,
+    "choco_panda": 1000,
+    "mentos_yupi_permen_kopiko_kis": {
+      "per_3": 1000,
+      "1biji": 500
+    },
+    "bontea_green": 7000,
+    "yupi_fun_gum": 11000,
+    "big_babol": 2500,
+    "permen_mata": 500,
+    "rollcocho": 2000,
+    "nyam_nyam": 2000,
+    "pilus_twisko_tictak_sukro": 1000,
+    "siip_1dus": 9000,
+    "gorio_500_1pack": 9000,
+    "jetz": {
+      "unit": 2000,
+      "1renteng": 18000
+    }
+  },
+  "rokok": {
+    "pundimas_12": 8500,
+    "pundimas_16": 12500,
+    "gg_pro_merah": 30000,
+    "dunhill_hitam": 30000,
+    "la_bold_20": 37500,
+    "aries_bold_12": 17000,
+    "oe_bold": 16500,
+    "oe_pet": 9000,
+    "diplomat": 33000,
+    "surya_12": 25000,
+    "surya_16": 34500,
+    "marboro_black_12": 24000,
+    "diplomat_12": 25000,
+    "raptor_12": 16000,
+    "geomild_16": 25500,
+    "la_light_16": 35500,
+    "sampurna_mild_16": 36500,
+    "gajah_baru": 17500,
+    "jisamsu_hitam": 21500,
+    "topas": 17500,
+    "djarum_super": 25000,
+    "grendel": 16500,
+    "contry_20": 28000,
+    "camel_kretek": 20000,
+    "asatu_16": 24000,
+    "camel_yellow": 30000,
+    "geo_kretek": 11500,
+    "jisamsu": 20000,
+    "76_mangga_madu": 15500,
+    "76_kretek_16": 20500,
+    "76_kretek_12": 15500,
+    "sampurna_hijau_12": 16000,
+    "alami_ungu": 9500,
+    "alami_1001": 10500,
+    "alami_trubus": 8500,
+    "warung_kopi": 12500,
+    "gudang_garam_kretek_12": 15500,
+    "evo": 24000,
+    "signature": 24500
+  }
+};
+
+
+        // Flatten the products object into a single array for easier searching
+        const allProducts = [];
+        for (const category in products) {
+            for (const item in products[category]) {
+                const price = products[category][item];
+                if (typeof price === 'object' && price !== null) {
+                    // Handle tiered pricing
+                    for (const unit in price) {
+                        // Pastikan nama produk unik dengan menambahkan unit di akhir
+                        allProducts.push({
+                            name: `${item.replace(/_/g, ' ')} (${unit})`, // Ganti underscore dengan spasi
+                            originalName: item,
+                            category: category,
+                            price: price[unit],
+                            isTiered: true,
+                            tierUnit: unit
+                        });
+                    }
+                } else {
+                    allProducts.push({
+                        name: item.replace(/_/g, ' '), // Ganti underscore dengan spasi
+                        originalName: item,
+                        category: category,
+                        price: price,
+                        isTiered: false
+                    });
+                }
+            }
+        }
+
+        let cart = [];
+        // Muat riwayat penjualan dan ID transaksi berikutnya dari localStorage
+        let salesHistory = JSON.parse(localStorage.getItem('salesHistory')) || [];
+        let nextTransactionId = parseInt(localStorage.getItem('nextTransactionId')) || 1;
+
+
+        // DOM Elements
+        const searchInput = document.getElementById('searchInput');
+        const quantityInput = document.getElementById('quantityInput');
+        const addButton = document.getElementById('addButton');
+        const cartItems = document.getElementById('cartItems');
+        const totalAmount = document.getElementById('totalAmount');
+        const paymentInput = document.getElementById('paymentInput');
+        const changeAmount = document.getElementById('changeAmount');
+        const checkoutButton = document.getElementById('checkoutButton');
+        const suggestions = document.getElementById('suggestions');
+
+        // Event Listeners
+        searchInput.addEventListener('input', showSuggestions);
+        // Menambahkan listener untuk Enter key pada searchInput
+        searchInput.addEventListener('keydown', function(event) {
+            if (event.key === 'Enter') {
+                const visibleSuggestions = suggestions.querySelectorAll('.product-item:not(.text-gray-500)');
+                if (visibleSuggestions.length > 0) {
+                    // Simulasikan klik pada saran pertama
+                    visibleSuggestions[0].click();
+                } else {
+                    // Jika tidak ada saran, coba tambahkan langsung jika ada input
+                    addToCart();
+                }
+                event.preventDefault(); // Mencegah form submit jika ada
+            }
+        });
+
+        addButton.addEventListener('click', addToCart);
+        checkoutButton.addEventListener('click', processPayment);
+        paymentInput.addEventListener('input', calculateChange); // Trigger change calculation on payment input
+
+        // --- Initial Call to set button state on load ---
+        document.addEventListener('DOMContentLoaded', () => {
+            updateCart(); // This will also call calculateChange and set the button state
+        });
+        // --- End Initial Call ---
+
+
+        // Fungsi untuk mengurai input jumlah (mendukung pecahan dan teks)
+        function parseQuantity(inputString) {
+            let quantity = 0;
+            const lowerInput = inputString.toLowerCase().trim();
+
+            // Coba parse sebagai angka langsung (misal "1", "2.5")
+            if (!isNaN(parseFloat(lowerInput)) && isFinite(lowerInput)) {
+                return parseFloat(lowerInput);
+            }
+
+            // Tangani kata-kata pecahan dan kombinasinya
+            const fractionalWords = {
+                'setengah': 0.5,
+                'seperempat': 0.25,
+                'tiga perempat': 0.75
+            };
+
+            // Regular expression to match numbers followed by fractional words
+            const regex = /(\d+)\s*(setengah|seperempat|tiga perempat)/;
+            const match = lowerInput.match(regex);
+
+            if (match) {
+                const numPart = parseFloat(match[1]);
+                const fractionPart = fractionalWords[match[2]];
+                return numPart + fractionPart;
+            }
+
+            // Cek untuk kata-kata pecahan tunggal
+            if (fractionalWords[lowerInput] !== undefined) {
+                return fractionalWords[lowerInput];
+            }
+            
+            // Handle specific single word "mil" as 0.1
+            if (lowerInput === 'mil') {
+                return 0.1;
+            }
+
+            return 0; // Default jika tidak ada yang cocok
+        }
+
+        // Function to display search suggestions
+        function showSuggestions() {
+            const searchTerm = searchInput.value.toLowerCase();
+            suggestions.innerHTML = ''; // Clear previous suggestions
+            
+            if (searchTerm.length < 2) { // Tampilkan saran jika input minimal 2 karakter
+                suggestions.classList.add('hidden');
+                return;
+            }
+
+            const matches = allProducts.filter(product =>
+                product.name.toLowerCase().includes(searchTerm)
+            );
+
+            if (matches.length === 0) {
+                suggestions.innerHTML = '<div class="product-item text-gray-500">Barang tidak ditemukan</div>';
+                suggestions.classList.remove('hidden'); // Show "not found" message
+            } else {
+                matches.forEach(product => {
+                    const div = document.createElement('div');
+                    div.className = 'product-item'; // Class for styling
+                    div.textContent = `${product.name} - Rp ${product.price.toLocaleString('id-ID')}`;
+                    div.addEventListener('click', () => {
+                        searchInput.value = product.name;
+                        suggestions.innerHTML = ''; 
+                        suggestions.classList.add('hidden'); // Hide suggestions
+                        quantityInput.focus(); // Move focus to quantity input
+                    });
+                    suggestions.appendChild(div);
+                });
+                suggestions.classList.remove('hidden'); // Show suggestions container
+            }
+        }
+
+        // Function to add item to cart
+        function addToCart() {
+            const productName = searchInput.value.trim();
+            let quantity = parseQuantity(quantityInput.value); // Gunakan fungsi parseQuantity
+
+            // Validate quantity before proceeding
+            if (quantity <= 0) { // Quantity must be positive after parsing
+                alert('Jumlah tidak valid. Silakan masukkan angka positif atau "setengah"/"seperempat".');
+                return;
+            }
+
+            // Find the product by exact match from the `allProducts` array
+            const productToAdd = allProducts.find(product =>
+                product.name.toLowerCase() === productName.toLowerCase()
+            );
+            
+            if (!productToAdd) {
+                alert('Barang tidak ditemukan dalam database. Silakan pilih dari saran atau cek ejaan.');
+                return;
+            }
+
+            // Kategori yang diizinkan untuk jumlah pecahan
+            const fractionalCategories = ["kerupuk", "beras", "telur", "bumbu", "masakan", "minyak", "tepung", "cemilan"];
+
+            // Jika produk bukan dari kategori pecahan, bulatkan jumlahnya
+            if (!fractionalCategories.includes(productToAdd.category)) {
+                const originalQuantity = quantity;
+                // Hanya bulatkan jika bukan integer
+                if (quantity % 1 !== 0) {
+                    quantity = Math.round(quantity);
+                    if (quantity <= 0) { // Pastikan minimal 1 setelah pembulatan
+                        quantity = 1;
+                    }
+                    alert(`Untuk barang "${productToAdd.name}", jumlah dibulatkan menjadi ${quantity}.`);
+                }
+            }
+
+
+            // Cek apakah produk sudah ada di keranjang
+            const existingItemIndex = cart.findIndex(item => item.name === productToAdd.name);
+
+            if (existingItemIndex !== -1) {
+                // Perbarui jumlah jika sudah ada
+                cart[existingItemIndex].quantity += quantity;
+            } else {
+                // Tambahkan item baru jika belum ada
+                cart.push({
+                    name: productToAdd.name,
+                    price: productToAdd.price,
+                    quantity: quantity
+                });
+            }
+
+            updateCart();
+            searchInput.value = '';
+            quantityInput.value = ''; // Clear quantity input
+            suggestions.classList.add('hidden'); // Ensure suggestions are hidden
+            suggestions.innerHTML = ''; // Clear suggestions content
+        }
+
+        // Function to update cart display
+        function updateCart() {
+            cartItems.innerHTML = '';
+            let total = 0;
+
+            cart.forEach((item, index) => {
+                total += item.price * item.quantity;
+
+                const row = document.createElement('tr');
+                row.className = 'border-b';
+                row.innerHTML = `
+                    <td class="p-3">${item.name}</td>
+                    <td class="p-3 text-right">Rp ${item.price.toLocaleString('id-ID')}</td>
+                    <td class="p-3 text-right">${item.quantity % 1 !== 0 ? item.quantity.toFixed(2) : item.quantity}</td>
+                    <td class="p-3 text-right">Rp ${(item.price * item.quantity).toLocaleString('id-ID')}</td>
+                    <td class="p-3 text-center">
+                        <button class="delete-btn text-red-500 hover:text-red-700" data-index="${index}">
+                            Hapus
+                        </button>
+                    </td>
+                `;
+                cartItems.appendChild(row);
+            });
+
+            // Add event listener for delete buttons
+            document.querySelectorAll('.delete-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const index = parseInt(this.getAttribute('data-index'));
+                    cart.splice(index, 1);
+                    updateCart();
+                });
+            });
+
+            totalAmount.textContent = `Rp ${total.toLocaleString('id-ID')}`;
+            calculateChange(); // Recalculate change and update button state after cart update
+        }
+
+        // Function to calculate change
+        function calculateChange() {
+            const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            const payment = parseFloat(paymentInput.value) || 0; // Ensures payment is 0 if empty/invalid
+            const change = payment - total;
+
+            changeAmount.textContent = `Rp ${change.toLocaleString('id-ID')}`; // Show negative change
+
+            // Enable/disable checkout button based on cart content
+            if (cart.length > 0) {
+                checkoutButton.disabled = false;
+                checkoutButton.classList.remove('bg-gray-400', 'cursor-not-allowed');
+                checkoutButton.classList.add('bg-green-600', 'hover:bg-green-700');
+            } else {
+                checkoutButton.disabled = true;
+                checkoutButton.classList.remove('bg-green-600', 'hover:bg-green-700');
+                checkoutButton.classList.add('bg-gray-400', 'cursor-not-allowed');
+            }
+
+            if (change < 0) {
+                changeAmount.classList.add('text-red-500');
+            } else {
+                changeAmount.classList.remove('text-red-500');
+            }
+        }
+
+        // Function to process payment
+        function processPayment() {
+            const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            const payment = parseFloat(paymentInput.value) || 0;
+            const change = payment - total;
+
+            if (cart.length === 0) {
+                alert('Keranjang belanja masih kosong!');
+                return;
+            }
+
+            let transactionStatus;
+            let debtAmount = 0;
+
+            if (payment < total) {
+                transactionStatus = 'utang';
+                debtAmount = total - payment;
+                alert(`Pembayaran tidak lunas!\nTotal: Rp ${total.toLocaleString('id-ID')}\nUang Diterima: Rp ${payment.toLocaleString('id-ID')}\nUtang: Rp ${debtAmount.toLocaleString('id-ID')}`);
+            } else {
+                transactionStatus = 'lunas';
+                alert(`Pembayaran berhasil!\nTotal: Rp ${total.toLocaleString('id-ID')}\nUang Diterima: Rp ${payment.toLocaleString('id-ID')}\nKembalian: Rp ${change.toLocaleString('id-ID')}`);
+            }
+
+            // Simpan transaksi ke riwayat
+            const transactionRecord = {
+                transactionId: nextTransactionId,
+                timestamp: new Date().toLocaleString('id-ID'),
+                items: cart.map(item => ({
+                    name: item.name,
+                    quantity: item.quantity,
+                    price: item.price
+                })),
+                totalAmount: total,
+                paymentReceived: payment,
+                change: change,
+                debtAmount: debtAmount,
+                status: transactionStatus
+            };
+
+            salesHistory.push(transactionRecord);
+            localStorage.setItem('salesHistory', JSON.stringify(salesHistory));
+            
+            nextTransactionId++;
+            localStorage.setItem('nextTransactionId', nextTransactionId.toString());
+
+            // Reset all
+            cart = [];
+            searchInput.value = '';
+            quantityInput.value = '';
+            paymentInput.value = '';
+            updateCart(); // This will clear the cart display and update button/totals
+        }
+
+
+        // Hide suggestions when clicking outside OR when searchInput is empty
+        document.addEventListener('click', function(e) {
+            // Check if the click is outside the search input and outside the suggestions box
+            if (!searchInput.contains(e.target) && !suggestions.contains(e.target)) {
+                suggestions.classList.add('hidden');
+                suggestions.innerHTML = ''; // Clear content when hiding
+            }
+        });
+
+        searchInput.addEventListener('keyup', function() {
+            if (searchInput.value.trim() === '') {
+                suggestions.classList.add('hidden');
+                suggestions.innerHTML = ''; // Clear content when input is empty
+            }
+        });
+    </script>
+</body>
+</html>
