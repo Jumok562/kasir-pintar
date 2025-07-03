@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Riwayat Penjualan</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Anda bisa menyertakan atau mengimpor CSS dari style.html di sini */
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(to right, #6a11cb 0%, #2575fc 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            color: #333;
+        }
+        .container {
+            max-width: 950px;
+            margin: 40px auto;
+            padding: 0;
+        }
+        .bg-white {
+            background-color: #ffffff;
+            border-radius: 1.25rem;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+            padding: 2.5rem;
+        }
+        h1 {
+            font-size: 2.5rem; /* Sesuaikan ukuran judul */
+            font-weight: 700;
+            color: #1a202c;
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+        .total-summary {
+            background-color: #eef2ff;
+            border: 1px solid #c7d2fe;
+            border-radius: 0.75rem;
+            padding: 1.75rem;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            margin-top: 2rem;
+            text-align: center;
+        }
+        .total-summary span {
+            font-size: 2rem; /* Ukuran lebih besar untuk total */
+            font-weight: 700;
+            color: #4338ca;
+            display: block; /* Agar Rp dan angka berada di baris terpisah atau lebih menonjol */
+            margin-top: 0.5rem;
+        }
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0 0.75rem;
+            background-color: #ffffff;
+            border-radius: 0.75rem;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            overflow: hidden;
+            margin-top: 2rem;
+        }
+        thead th {
+            background-color: #eef2ff;
+            color: #4338ca;
+            font-weight: 700;
+            padding: 1rem 1.5rem;
+            font-size: 0.95rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            text-align: left;
+        }
+        tbody tr {
+            background-color: #ffffff;
+            transition: background-color 0.2s ease-in-out;
+            border-radius: 0.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+        }
+        tbody tr:hover {
+            background-color: #f0f4f8;
+        }
+        td {
+            padding: 1rem 1.5rem;
+            font-size: 0.9rem;
+            color: #4a5568;
+            vertical-align: middle;
+        }
+        .nav-buttons {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 2rem;
+        }
+        .nav-buttons a {
+            padding: 10px 20px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: background-color 0.3s ease;
+            margin: 0 10px;
+        }
+        .nav-buttons .active {
+            background-color: #6366f1;
+            color: white;
+        }
+        .nav-buttons .inactive {
+            background-color: #e2e8f0;
+            color: #4a5568;
+        }
+        .nav-buttons .inactive:hover {
+            background-color: #cbd5e0;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div class="container mx-auto p-6 max-w-4xl">
+        <div class="bg-white rounded-xl shadow-md p-6">
+            <h1 class="text-3xl font-bold text-center text-blue-600 mb-6">Riwayat Penjualan</h1>
+            <p class="text-gray-600 mb-8 text-center">Lihat semua transaksi penjualan Anda di sini.</p>
+
+            <nav class="nav-buttons">
+                <a href="Pentol.html" class="inactive">Kasir</a>
+                <a href="riwayat.html" class="active">Riwayat Penjualan</a>
+            </nav>
+
+            <div class="total-summary">
+                <p class="font-medium text-lg">Total Uang dari Semua Penjualan:</p>
+                <span id="grandTotalSales">Rp 0</span>
+            </div>
+
+            <h2 class="text-xl font-semibold mb-4 mt-8">Detail Transaksi</h2>
+            <table class="w-full border-collapse">
+                <thead>
+                    <tr class="bg-gray-100">
+                        <th class="p-3 text-left">ID Transaksi</th>
+                        <th class="p-3 text-left">Waktu</th>
+                        <th class="p-3 text-left">Barang Terjual</th>
+                        <th class="p-3 text-right">Total Belanja</th>
+                        <th class="p-3 text-right">Uang Diterima</th>
+                        <th class="p-3 text-right">Kembalian</th>
+                        <th class="p-3 text-right">Utang</th>
+                        <th class="p-3 text-left">Status</th>
+                    </tr>
+                </thead>
+                <tbody id="salesHistoryTableBody">
+                    </tbody>
+            </table>
+            
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            let salesHistory = JSON.parse(localStorage.getItem('salesHistory')) || [];
+            const salesHistoryTableBody = document.getElementById('salesHistoryTableBody');
+            const grandTotalSalesElement = document.getElementById('grandTotalSales');
+            let grandTotal = 0;
+
+            if (salesHistory.length === 0) {
+                salesHistoryTableBody.innerHTML = '<tr><td colspan="8" class="p-3 text-center text-gray-500">Belum ada riwayat penjualan.</td></tr>';
+            } else {
+                salesHistory.forEach(transaction => {
+                    grandTotal += transaction.totalAmount;
+
+                    const row = document.createElement('tr');
+                    let itemsList = transaction.items.map(item =>
+                        `${item.name} (${item.quantity % 1 !== 0 ? item.quantity.toFixed(2) : item.quantity})`
+                    ).join(', ');
+
+                    row.innerHTML = `
+                        <td class="p-3">${transaction.transactionId}</td>
+                        <td class="p-3">${transaction.timestamp}</td>
+                        <td class="p-3">${itemsList}</td>
+                        <td class="p-3 text-right">Rp ${transaction.totalAmount.toLocaleString('id-ID')}</td>
+                        <td class="p-3 text-right">Rp ${transaction.paymentReceived.toLocaleString('id-ID')}</td>
+                        <td class="p-3 text-right">Rp ${transaction.change.toLocaleString('id-ID')}</td>
+                        <td class="p-3 text-right">${transaction.debtAmount > 0 ? `Rp ${transaction.debtAmount.toLocaleString('id-ID')}` : '-'}</td>
+                        <td class="p-3">${transaction.status === 'utang' ? '<span class="text-red-600 font-semibold">Utang</span>' : '<span class="text-green-600 font-semibold">Lunas</span>'}</td>
+                    `;
+                    salesHistoryTableBody.appendChild(row);
+                });
+            }
+            
+            grandTotalSalesElement.textContent = `Rp ${grandTotal.toLocaleString('id-ID')}`;
+        });
+    </script>
+</body>
+</html>
