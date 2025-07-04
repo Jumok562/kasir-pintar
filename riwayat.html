@@ -4,7 +4,7 @@
     <title>Riwayat Penjualan</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* Anda bisa menyertakan atau mengimpor CSS dari style.html di sini */
+        /* CSS Utama */
         body {
             font-family: 'Poppins', sans-serif;
             background: linear-gradient(to right, #6a11cb 0%, #2575fc 100%);
@@ -27,7 +27,7 @@
             padding: 2.5rem;
         }
         h1 {
-            font-size: 2.5rem; /* Sesuaikan ukuran judul */
+            font-size: 2.5rem;
             font-weight: 700;
             color: #1a202c;
             text-align: center;
@@ -43,10 +43,10 @@
             text-align: center;
         }
         .total-summary span {
-            font-size: 2rem; /* Ukuran lebih besar untuk total */
+            font-size: 2rem;
             font-weight: 700;
             color: #4338ca;
-            display: block; /* Agar Rp dan angka berada di baris terpisah atau lebih menonjol */
+            display: block;
             margin-top: 0.5rem;
         }
         table {
@@ -108,7 +108,7 @@
         .nav-buttons .inactive:hover {
             background-color: #cbd5e0;
         }
-        .delete-all-button-container {
+        .delete-all-button-container, .export-button-container {
             text-align: center;
             margin-top: 2rem;
         }
@@ -137,6 +137,92 @@
         }
         .delete-single-button:hover {
             background-color: #ea580c; /* Oranye lebih gelap */
+        }
+        .export-button {
+            padding: 10px 20px;
+            background-color: #3b82f6; /* Biru */
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .export-button:hover {
+            background-color: #2563eb; /* Biru lebih gelap */
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none; /* Hidden by default */
+            position: fixed; /* Stay in place */
+            z-index: 1000; /* Sit on top */
+            left: 0;
+            top: 0;
+            width: 100%; /* Full width */
+            height: 100%; /* Full height */
+            overflow: auto; /* Enable scroll if needed */
+            background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: auto;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+        }
+        .modal-content h3 {
+            margin-top: 0;
+            color: #333;
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+        }
+        .modal-content p {
+            margin-bottom: 20px;
+            color: #555;
+        }
+        .modal-content input[type="text"] {
+            width: calc(100% - 20px);
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 1rem;
+            text-align: center;
+        }
+        .modal-buttons {
+            display: flex;
+            justify-content: space-around;
+            gap: 10px;
+        }
+        .modal-buttons button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            flex-grow: 1; /* Make buttons take equal width */
+        }
+        .modal-buttons .confirm {
+            background-color: #ef4444;
+            color: white;
+        }
+        .modal-buttons .confirm:hover {
+            background-color: #dc2626;
+        }
+        .modal-buttons .cancel {
+            background-color: #e2e8f0;
+            color: #4a5568;
+        }
+        .modal-buttons .cancel:hover {
+            background-color: #cbd5e0;
         }
     </style>
 </head>
@@ -168,7 +254,8 @@
                         <th class="p-3 text-right">Kembalian</th>
                         <th class="p-3 text-right">Utang</th>
                         <th class="p-3 text-left">Status</th>
-                        <th class="p-3 text-left">Aksi</th> </tr>
+                        <th class="p-3 text-left">Aksi</th>
+                    </tr>
                 </thead>
                 <tbody id="salesHistoryTableBody">
                     </tbody>
@@ -177,7 +264,24 @@
             <div class="delete-all-button-container">
                 <button id="clearHistoryButton" class="delete-all-button">Hapus Seluruh Riwayat Penjualan</button>
             </div>
+
+            <div class="export-button-container">
+                <button id="exportHistoryButton" class="export-button">Ekspor Riwayat Penjualan (CSV)</button>
+            </div>
             
+        </div>
+    </div>
+
+    <div id="deleteAllConfirmationModal" class="modal">
+        <div class="modal-content">
+            <h3>Konfirmasi Penghapusan Seluruh Riwayat</h3>
+            <p>Anda akan menghapus **SELURUH** riwayat penjualan secara **PERMANEN**. Tindakan ini tidak dapat dibatalkan.</p>
+            <p>Untuk mengonfirmasi, ketik **"HAPUS PERMANEN"** di kolom bawah ini:</p>
+            <input type="text" id="deleteAllConfirmTextInput" placeholder="Ketik HAPUS PERMANEN">
+            <div class="modal-buttons">
+                <button id="confirmDeleteAllButton" class="confirm">Konfirmasi Hapus</button>
+                <button id="cancelDeleteAllButton" class="cancel">Batal</button>
+            </div>
         </div>
     </div>
 
@@ -187,6 +291,13 @@
             const salesHistoryTableBody = document.getElementById('salesHistoryTableBody');
             const grandTotalSalesElement = document.getElementById('grandTotalSales');
             const clearHistoryButton = document.getElementById('clearHistoryButton');
+            const exportHistoryButton = document.getElementById('exportHistoryButton');
+
+            // Elemen Modal
+            const deleteAllConfirmationModal = document.getElementById('deleteAllConfirmationModal');
+            const deleteAllConfirmTextInput = document.getElementById('deleteAllConfirmTextInput');
+            const confirmDeleteAllButton = document.getElementById('confirmDeleteAllButton');
+            const cancelDeleteAllButton = document.getElementById('cancelDeleteAllButton');
             
             const renderSalesHistory = () => {
                 let grandTotal = 0;
@@ -227,14 +338,33 @@
 
             renderSalesHistory(); // Initial render
 
-            // Event listener for clearing all history
+            // Event listener for showing clear all history modal
             clearHistoryButton.addEventListener('click', () => {
-                if (confirm('Apakah Anda yakin ingin menghapus SEMUA riwayat penjualan? Tindakan ini tidak dapat dibatalkan.')) {
-                    localStorage.removeItem('salesHistory');
-                    salesHistory = []; // Clear the in-memory array
-                    renderSalesHistory(); // Re-render the table with empty history
-                    alert('Seluruh riwayat penjualan telah dihapus.');
+                deleteAllConfirmationModal.style.display = 'flex'; // Show the modal
+                deleteAllConfirmTextInput.value = ''; // Clear any previous input
+                deleteAllConfirmTextInput.focus(); // Focus on the input
+            });
+
+            // Event listener for confirming clear all history
+            confirmDeleteAllButton.addEventListener('click', () => {
+                if (deleteAllConfirmTextInput.value === 'HAPUS PERMANEN') {
+                    if (confirm('Anda benar-benar yakin ingin menghapus SELURUH riwayat penjualan secara PERMANEN? Tindakan ini tidak dapat dibatalkan.')) {
+                        localStorage.removeItem('salesHistory');
+                        salesHistory = []; // Clear the in-memory array
+                        renderSalesHistory(); // Re-render the table with empty history
+                        alert('Seluruh riwayat penjualan telah dihapus.');
+                        deleteAllConfirmationModal.style.display = 'none'; // Hide the modal
+                    }
+                } else {
+                    alert('Konfirmasi teks tidak cocok. Silakan ketik "HAPUS PERMANEN" untuk melanjutkan.');
+                    deleteAllConfirmTextInput.value = ''; // Clear incorrect input
                 }
+            });
+
+            // Event listener for canceling clear all history
+            cancelDeleteAllButton.addEventListener('click', () => {
+                deleteAllConfirmationModal.style.display = 'none'; // Hide the modal
+                deleteAllConfirmTextInput.value = ''; // Clear input
             });
 
             // Event delegation for deleting individual rows
@@ -249,7 +379,52 @@
                     }
                 }
             });
+
+            // Event listener for exporting history
+            exportHistoryButton.addEventListener('click', () => {
+                if (salesHistory.length === 0) {
+                    alert('Tidak ada data untuk diekspor.');
+                    return;
+                }
+
+                // Buat CSV string
+                // Header CSV
+                let csvContent = "ID Transaksi,Waktu,Barang Terjual,Total Belanja,Uang Diterima,Kembalian,Utang,Status\n";
+
+                salesHistory.forEach(transaction => {
+                    // Pastikan tidak ada koma dalam teks yang menyebabkan kolom terpisah
+                    const itemsList = transaction.items.map(item =>
+                        `${item.name} (${item.quantity % 1 !== 0 ? item.quantity.toFixed(2) : item.quantity})`
+                    ).join('; ').replace(/"/g, '""'); // Ganti koma dengan semicolon, handle quote
+
+                    csvContent += `${transaction.transactionId},"${transaction.timestamp}","${itemsList}",${transaction.totalAmount},${transaction.paymentReceived},${transaction.change},${transaction.debtAmount},${transaction.status}\n`;
+                });
+
+                // Buat Blob dan download
+                const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                const link = document.createElement('a');
+                if (link.download !== undefined) {
+                    const url = URL.createObjectURL(blob);
+                    link.setAttribute('href', url);
+                    // Gunakan tanggal saat ini untuk nama file
+                    const today = new Date();
+                    const fileNameDate = today.getFullYear() + '-' + 
+                                         String(today.getMonth() + 1).padStart(2, '0') + '-' + 
+                                         String(today.getDate()).padStart(2, '0');
+                    link.setAttribute('download', `riwayat_penjualan_${fileNameDate}.csv`);
+                    link.style.visibility = 'hidden';
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    alert('Riwayat penjualan berhasil diekspor sebagai CSV!');
+                } else {
+                    alert('Browser Anda tidak mendukung fitur ekspor langsung. Silakan salin teks CSV secara manual.');
+                    // Opsional: tampilkan CSV di alert atau textarea agar bisa disalin
+                    // alert(csvContent);
+                }
+            });
         });
     </script>
 </body>
-</html>
+                </html>
+    
